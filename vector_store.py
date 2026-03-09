@@ -33,6 +33,8 @@ def _get_embedding_model() -> SentenceTransformer:
 
 @lru_cache(maxsize=1)
 def _get_chroma_collection() -> chromadb.Collection:
+    import os
+    os.environ["CHROMA_TELEMETRY"] = "false"
     client = chromadb.PersistentClient(
         path=str(config.CHROMA_DIR),
         settings=chromadb.Settings(anonymized_telemetry=False)
