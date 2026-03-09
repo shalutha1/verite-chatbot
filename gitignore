@@ -1,0 +1,28 @@
+# ── Secrets — NEVER commit ────────────────────────────────────────────────────
+.env
+
+# ── PDFs — do NOT commit source documents (assignment requirement) ────────────
+data/*.pdf
+data/*.PDF
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+logs/
+*.log
+
+# ── OS / IDE ──────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ── INTENTIONALLY COMMITTED (required for deployment without PDFs) ────────────
+# chroma_db/   ← pre-built vector store, committed after running ingest.py
+# memory.db    ← SQLite long-term memory, committed as empty DB seed
