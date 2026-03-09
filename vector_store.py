@@ -33,7 +33,10 @@ def _get_embedding_model() -> SentenceTransformer:
 
 @lru_cache(maxsize=1)
 def _get_chroma_collection() -> chromadb.Collection:
-    client = chromadb.PersistentClient(path=str(config.CHROMA_DIR))
+    client = chromadb.PersistentClient(
+        path=str(config.CHROMA_DIR),
+        settings=chromadb.Settings(anonymized_telemetry=False)
+    )
     collection = client.get_collection(config.COLLECTION_NAME)
     logger.info(f"ChromaDB collection loaded — {collection.count()} chunks")
     return collection
