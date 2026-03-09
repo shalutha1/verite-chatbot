@@ -10,6 +10,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Disable ChromaDB telemetry
+os.environ["ANONYMIZED_TELEMETRY"] = "False"
+
 # ── Paths ─────────────────────────────────────────────────────────────────────
 BASE_DIR        = Path(__file__).parent
 DATA_DIR        = BASE_DIR / "data"
