@@ -13,10 +13,10 @@ from config import GROQ_API_KEY
 
 def _load_logo_b64() -> str:
     """Load logo.jpg as base64 string for embedding in HTML."""
-    logo_path = Path("logo.jpg")
-    if logo_path.exists():
-        with open(logo_path, "rb") as f:
-            return base64.b64encode(f.read()).decode()
+    for logo_path in [Path("logo.jpg"), Path("/app/logo.jpg"), Path(__file__).parent / "logo.jpg"]:
+        if logo_path.exists():
+            with open(logo_path, "rb") as f:
+                return base64.b64encode(f.read()).decode()
     return ""
 
 # ── Page config ────────────────────────────────────────────────────────────────
@@ -230,9 +230,15 @@ def render_sidebar() -> None:
     with st.sidebar:
         # Logo
         st.markdown("<div style='padding:12px 0 4px 0'>", unsafe_allow_html=True)
-        try:
-            st.image("logo.jpg", use_container_width=True)
-        except Exception:
+        logo_b64 = _load_logo_b64()
+        if logo_b64:
+            st.markdown(
+                f'<div style="background:white;border-radius:10px;padding:10px;margin-bottom:8px;text-align:center">'
+                f'<img src="data:image/jpeg;base64,{logo_b64}" style="max-width:100%;height:auto;"/>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
+        else:
             st.markdown("### 📚 Veri")
         st.markdown("</div>", unsafe_allow_html=True)
 
