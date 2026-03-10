@@ -10,15 +10,29 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Disable ChromaDB telemetry
-os.environ["ANONYMIZED_TELEMETRY"] = "False"
-
 # ── Paths ─────────────────────────────────────────────────────────────────────
 BASE_DIR        = Path(__file__).parent
 DATA_DIR        = BASE_DIR / "data"
-CHROMA_DIR      = BASE_DIR / "chroma_db"
 MEMORY_DB_PATH  = BASE_DIR / "memory.db"
 LOG_DIR         = BASE_DIR / "logs"
+
+# ChromaDB needs a writable directory — /mount/src/ is read-only on HuggingFace
+# So we copy it to /tmp at startup if running on HF
+_SOURCE_CHROMA  = BASE_DIR / "chroma_db"
+_TMP_CHROMA     = Path("/tmp/chroma_db")
+
+def get_chroma_dir() -> Path:
+    """
+    Return a writable path for ChromaDB.
+    On HuggingFace Spaces, /mount/src is read-only so we copy to /tmp first.
+    """
+    import shutil
+    if not _TMP_CHROMA.exists() or not any(_TMP_CHROMA.iterdir()):
+        if _SOURCE_CHROMA.exists():
+            shutil.copytree(str(_SOURCE_CHROMA), str(_TMP_CHROMA), dirs_exist_ok=True)
+    return _TMP_CHROMA
+
+CHROMA_DIR = get_chroma_dir()
 
 # ── LLM ───────────────────────────────────────────────────────────────────────
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
