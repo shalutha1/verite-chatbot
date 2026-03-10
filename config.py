@@ -16,8 +16,13 @@ BASE_DIR       = Path(__file__).parent
 DATA_DIR       = BASE_DIR / "data"
 LOG_DIR        = BASE_DIR / "logs"
 
-# ── Memory DB — use /tmp on HuggingFace (read-only mount) ─────────────────────
-_IS_HF = Path("/mount/src").exists()
+# ── Detect if running on HuggingFace ─────────────────────────────────────────
+# HF Spaces can mount at /app or /mount/src depending on SDK
+_IS_HF = (
+    Path("/app").exists() and not Path("C:/").exists()
+    or Path("/mount/src").exists()
+    or os.getenv("SPACE_ID") is not None
+)
 
 if _IS_HF:
     MEMORY_DB_PATH = Path("/tmp/memory.db")
