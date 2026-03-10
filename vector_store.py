@@ -33,15 +33,17 @@ def _get_embedding_model() -> SentenceTransformer:
 
 @lru_cache(maxsize=1)
 def _get_chroma_collection() -> chromadb.Collection:
-    import os
-    os.environ["CHROMA_TELEMETRY"] = "false"
-    client = chromadb.PersistentClient(
-        path=str(config.CHROMA_DIR),
-        settings=chromadb.Settings(anonymized_telemetry=False)
-    )
-    collection = client.get_collection(config.COLLECTION_NAME)
-    logger.info(f"ChromaDB collection loaded — {collection.count()} chunks")
-    return collection
+    try:
+        logger.info(f"Opening ChromaDB at: {config.CHROMA_DIR}")
+        client = chromadb.PersistentClient(path=str(config.CHROMA_DIR))
+        collections = client.list_collections()
+        logger.info(f"Available collections: {[c.name for c in collections]}")
+        collection = client.get_collection(config.COLLECTION_NAME)
+        logger.info(f"ChromaDB collection loaded — {collection.count()} chunks")
+        return collection
+    except Exception as e:
+        logger.error(f"Failed to load ChromaDB collection: {type(e).__name__}: {e}")
+        raise
 
 
 # ── Vector Store Class ────────────────────────────────────────────────────────
@@ -217,6 +219,9 @@ class VectorStore:
     def is_ready(self) -> bool:
         """Check if the vector store has documents."""
         try:
-            return self.collection.count() > 0
-        except Exception:
+            count = self.collection.count()
+            logger.info(f"ChromaDB collection count = {count}")
+            return count > 0
+        except Exception as e:
+            logger.error(f"is_ready() failed: {type(e).__name__}: {e}")
             return False
